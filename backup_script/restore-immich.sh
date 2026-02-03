@@ -187,7 +187,7 @@ restore_files() {
     fi
     
     # Restore data directories
-    local dirs_to_restore=("library" "postgres")
+    local dirs_to_restore=("library")
     
     for dir in "${dirs_to_restore[@]}"; do
         if [[ -d "${files_backup_dir}/${dir}" ]]; then

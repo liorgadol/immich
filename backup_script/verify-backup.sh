@@ -114,19 +114,17 @@ if [[ -d "$FILES_DIR" ]]; then
         ((WARNINGS++))
     fi
     
-    # Check data directories
+    # Check library directory
     echo ""
     echo "Data Directories:"
-    for dir in library postgres; do
-        if [[ -d "${FILES_DIR}/${dir}" ]]; then
-            SIZE=$(du -sh "${FILES_DIR}/${dir}" 2>/dev/null | cut -f1)
-            FILE_COUNT=$(find "${FILES_DIR}/${dir}" -type f 2>/dev/null | wc -l | tr -d ' ')
-            log_info "$dir/ - $SIZE ($FILE_COUNT files)"
-        else
-            log_error "$dir/ directory missing"
-            ((ERRORS++))
-        fi
-    done
+    if [[ -d "${FILES_DIR}/library" ]]; then
+        SIZE=$(du -sh "${FILES_DIR}/library" 2>/dev/null | cut -f1)
+        FILE_COUNT=$(find "${FILES_DIR}/library" -type f 2>/dev/null | wc -l | tr -d ' ')
+        log_info "library/ - $SIZE ($FILE_COUNT files)"
+    else
+        log_error "library/ directory missing"
+        ((ERRORS++))
+    fi
 else
     log_error "Files directory not found"
     ((ERRORS++))
