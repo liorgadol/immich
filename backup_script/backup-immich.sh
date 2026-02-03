@@ -204,7 +204,6 @@ backup_files() {
     # Define directories to backup
     local dirs_to_backup=(
         "library"
-        "postgres"
     )
     
     # Add docker-compose.yml and .env to backup
@@ -271,7 +270,6 @@ Database User: $DB_USERNAME
 Backup Contents:
 - PostgreSQL database dump (compressed)
 - Immich library files
-- PostgreSQL data directory
 - Configuration files (docker-compose.yml, .env)
 
 Backup completed successfully.

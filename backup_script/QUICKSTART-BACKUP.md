@@ -76,8 +76,7 @@ immich_backup_20260202_143000/
     ├── config/
     │   ├── docker-compose.yml
     │   └── .env
-    ├── library/                      ← All your photos/videos
-    └── postgres/                     ← PostgreSQL data
+    └── library/                      ← All your photos/videos
 ```
 
 ## 🔄 Restoring

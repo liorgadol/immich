@@ -151,8 +151,7 @@ immich_backup_YYYYMMDD_HHMMSS/
     ├── config/
     │   ├── docker-compose.yml   # Docker configuration
     │   └── .env                 # Environment variables
-    ├── library/                 # Immich media files
-    └── postgres/                # PostgreSQL data directory
+    └── library/                 # Immich media files
 ```
 
 ## Restoring from Backup
@@ -175,7 +174,7 @@ The restore script will:
 1. Stop all Immich containers
 2. Drop and recreate the database
 3. Restore the database from the backup
-4. Restore all files (library, postgres data, configs)
+4. Restore all files (library, configs)
 5. Ask if you want to start Immich
 
 ## Automation with Cron
