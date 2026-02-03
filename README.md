@@ -34,9 +34,9 @@ This is a Docker Compose setup for running Immich, providing:
 
    Key settings to configure:
    ```bash
-   UPLOAD_LOCATION=./library          # Where your photos/videos are stored
-   DB_DATA_LOCATION=./postgres        # Database storage location
-   IMMICH_VERSION=release             # Immich version to use
+   UPLOAD_LOCATION=/mnt/data/immich/library    # Where your photos/videos are stored
+   DB_DATA_LOCATION=/mnt/data/immich/postgres  # Database storage location
+   IMMICH_VERSION=release                      # Immich version to use
    ```
 
 3. **Start Immich**
@@ -61,10 +61,12 @@ This is a Docker Compose setup for running Immich, providing:
 immich/
 ├── docker-compose.yml       # Docker services configuration
 ├── .env                     # Environment variables (private)
-├── library/                 # Your uploaded photos and videos
-├── postgres/                # Database files
 ├── backup_script/           # Backup and restore scripts
 └── README.md               # This file
+
+/mnt/data/immich/
+├── library/                 # Your uploaded photos and videos
+└── postgres/                # Database files
 ```
 
 ## 🔧 Management
@@ -135,14 +137,14 @@ Key variables in `.env`:
 
 ```bash
 # Immich
-UPLOAD_LOCATION=./library
+UPLOAD_LOCATION=/mnt/data/immich/library
 IMMICH_VERSION=release
 
 # Database
 DB_DATABASE_NAME=immich
 DB_USERNAME=postgres
 DB_PASSWORD=<your-secure-password>
-DB_DATA_LOCATION=./postgres
+DB_DATA_LOCATION=/mnt/data/immich/postgres
 
 # Ports
 IMMICH_PORT=2283
@@ -178,9 +180,9 @@ docker ps | grep postgres
 
 Check disk usage:
 ```bash
-du -sh library/
-du -sh postgres/
-df -h
+du -sh /mnt/data/immich/library/
+du -sh /mnt/data/immich/postgres/
+df -h /mnt/data/immich
 ```
 
 ### Reset Immich
@@ -189,7 +191,7 @@ df -h
 
 ```bash
 docker compose down -v
-rm -rf library/ postgres/
+rm -rf /mnt/data/immich/library/ /mnt/data/immich/postgres/
 docker compose up -d
 ```
 
