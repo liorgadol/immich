@@ -2,6 +2,7 @@
 
 # Absolute paths are required for cron
 ENV_FILE="/home/gadol/projects/immich/.env"
+IMMICH_DIR="/home/gadol/projects/immich"
 BACKUP_DIR="/mnt/data/immich/backup"
 TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
 BACKUP_FILE="$BACKUP_DIR/immich_db_backup_${TIMESTAMP}.sql.gz"
@@ -34,6 +35,11 @@ else
     log "ERROR: Backup failed"
     exit 1
 fi
+
+# Backup configuration files (keeps only latest copy)
+log "Backing up configuration files..."
+cp "$ENV_FILE" "$BACKUP_DIR/env_backup" && log "Backed up .env file"
+cp "$IMMICH_DIR/docker-compose.yml" "$BACKUP_DIR/docker-compose_backup.yml" && log "Backed up docker-compose.yml"
 
 # Backup library folder with rsync
 log "Starting library rsync backup..."
