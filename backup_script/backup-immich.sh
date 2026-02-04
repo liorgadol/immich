@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Absolute paths are required for cron
-ENV_FILE="/Users/liorg/homedev/immich/.env"
+ENV_FILE="/home/gadol/projects/immich/.env"
 BACKUP_DIR="/mnt/data/immich"
 BACKUP_FILE="$BACKUP_DIR/immich_backup.sql.gz"
 LOG_FILE="$BACKUP_DIR/backup.log"
