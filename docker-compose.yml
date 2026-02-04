@@ -1,6 +1,19 @@
 name: immich
 
 services:
+  nginx-proxy:
+    container_name: immich_nginx_proxy
+    image: nginx:alpine
+    ports:
+      - '2283:80'
+      - '2284:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - immich-server
+    restart: always
+
   immich-server:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
@@ -13,8 +26,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
-    ports:
-      - '2283:2283'
+    # Port removed - accessed through nginx-proxy only
+    # ports:
+    #   - '2283:2283'
     depends_on:
       - redis
       - database
