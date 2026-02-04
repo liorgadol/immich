@@ -29,7 +29,7 @@ fi
 
 # Backup library folder with rsync
 log "Starting library rsync backup..."
-if rsync -avh --delete /mnt/data/immich/library/ /mnt/data/immich/backup/library/; then
+if rsync -avh --delete --inplace /mnt/data/immich/library/ /mnt/data/immich/backup/library/; then
     log "Library backup completed: /mnt/data/immich/backup/library/"
 else
     log "ERROR: Library backup failed"
