@@ -2,8 +2,8 @@
 
 # Absolute paths are required for cron
 ENV_FILE="/home/gadol/projects/immich/.env"
-BACKUP_DIR="/mnt/data/immich"
-BACKUP_FILE="$BACKUP_DIR/immich_backup.sql.gz"
+BACKUP_DIR="/mnt/data/immich/backup"
+BACKUP_FILE="$BACKUP_DIR/immich_db_backup.sql.gz"
 LOG_FILE="$BACKUP_DIR/backup.log"
 
 # Clear the log file at the start
