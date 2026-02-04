@@ -6,9 +6,6 @@ BACKUP_DIR="/mnt/data/immich"
 BACKUP_FILE="$BACKUP_DIR/immich_backup.sql.gz"
 LOG_FILE="$BACKUP_DIR/backup.log"
 
-# Create backup directory
-mkdir -p "$BACKUP_DIR"
-
 # Clear the log file at the start
 > "$LOG_FILE"
 
