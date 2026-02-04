@@ -20,6 +20,8 @@ log() {
 # Load environment variables
 source "$ENV_FILE"
 
+# Record start time
+START_TIME=$(date +%s)
 log "Starting backup..."
 
 if docker exec -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" \
@@ -49,3 +51,10 @@ else
     log "ERROR: Library backup failed"
     exit 1
 fi
+
+# Calculate and log total time
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+log "Total backup time: ${MINUTES}m ${SECONDS}s"
