@@ -3,3 +3,4 @@ postgres/
 .DS_Store
 nginx/ssl/*
 !nginx/ssl/.gitkeep
+.env
