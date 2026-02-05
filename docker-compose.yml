@@ -4,6 +4,8 @@ services:
   nginx-proxy:
     container_name: immich_nginx_proxy
     image: nginx:alpine
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
     ports:
       - '2284:443'
     volumes:
