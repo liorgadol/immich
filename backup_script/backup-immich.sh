@@ -24,6 +24,17 @@ source "$ENV_FILE"
 START_TIME=$(date +%s)
 log "Starting backup..."
 
+# Trap to ensure immich_server restarts even if script fails
+trap 'log "Restarting immich_server..."; docker start immich_server' EXIT
+
+# Stop immich_server for consistent backup
+log "Stopping immich_server..."
+if docker stop immich_server; then
+    log "immich_server stopped successfully"
+else
+    log "WARNING: Failed to stop immich_server, continuing anyway"
+fi
+
 if docker exec -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" \
     pg_dump -U "$DB_USERNAME" -d "$DB_NAME" --clean --if-exists | gzip > "$BACKUP_FILE"; then
     log "Backup completed: $BACKUP_FILE ($(du -h "$BACKUP_FILE" | cut -f1))"
@@ -51,6 +62,18 @@ else
     log "ERROR: Library backup failed"
     exit 1
 fi
+
+# Restart immich_server
+log "Restarting immich_server..."
+if docker start immich_server; then
+    log "immich_server restarted successfully"
+else
+    log "ERROR: Failed to restart immich_server!"
+    exit 1
+fi
+
+# Disable trap since we've manually restarted
+trap - EXIT
 
 # Calculate and log total time
 END_TIME=$(date +%s)
