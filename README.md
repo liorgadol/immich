@@ -109,16 +109,28 @@ cd backup_script
 ./backup-immich.sh
 ```
 
-This will backup:
-- PostgreSQL database (compressed SQL dump)
-- All media files (photos/videos)
-- Configuration files
+**What happens during backup:**
+1. Stops `immich_server` container (other containers keep running)
+2. Backs up PostgreSQL database (compressed SQL dump)
+3. Backs up all media files (photos/videos) using rsync
+4. Backs up configuration files (.env and docker-compose.yml)
+5. Restarts `immich_server` container automatically
+6. Safety trap ensures server restart even if backup fails
+
+**Downtime:** Usually under 1 minute (only `immich_server` is stopped)
+
+**What gets backed up:**
+- PostgreSQL database (last 4 backups kept, auto-rotated)
+- Complete media library (incremental sync)
+- Configuration files (latest version)
 
 ### Learn More
 
-See the backup documentation:
-- [Backup README](backup_script/README-BACKUP.md) - Full documentation
-- [Quick Start Guide](backup_script/QUICKSTART-BACKUP.md) - Get started in 3 steps
+See the [Backup README](backup_script/README.md) for full documentation on:
+- Automated backups with cron
+- Restore procedures
+- Configuration options
+- Troubleshooting
 
 ## 🔍 Services
 
