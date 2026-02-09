@@ -64,7 +64,7 @@ else
 fi
 
 # Restart immich_server
-log "Restarting immich_server..."
+log "Starting immich_server..."
 if docker start immich_server; then
     log "immich_server restarted successfully"
 else
