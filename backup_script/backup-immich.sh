@@ -1,13 +1,29 @@
 #!/bin/bash
 
-# Absolute paths are required for cron
-ENV_FILE="/home/gadol/projects/immich/.env"
-IMMICH_DIR="/home/gadol/projects/immich"
-BACKUP_DIR="/mnt/data/immich/backup"
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IMMICH_DIR="${IMMICH_DIR:-$(dirname "$SCRIPT_DIR")}"
+
+# Load environment variables from .env file
+ENV_FILE="${ENV_FILE:-$IMMICH_DIR/.env}"
+if [ -f "$ENV_FILE" ]; then
+    source "$ENV_FILE"
+else
+    echo "ERROR: .env file not found at $ENV_FILE"
+    exit 1
+fi
+
+# Backup configuration (can be overridden in .env)
+BACKUP_DIR="${BACKUP_DIR:-/mnt/data/immich/backup}"
 TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
 BACKUP_FILE="$BACKUP_DIR/immich_db_backup_${TIMESTAMP}.sql.gz"
 LOG_FILE="$BACKUP_DIR/backup.log"
-MAX_BACKUPS=4
+MAX_BACKUPS="${MAX_BACKUPS:-4}"
+DB_CONTAINER="${DB_CONTAINER:-immich_postgres}"
+DB_NAME="${DB_DATABASE_NAME:-immich}"
+
+# Create backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR"
 
 # Clear the log file at the start
 > "$LOG_FILE"
@@ -16,9 +32,6 @@ MAX_BACKUPS=4
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
-
-# Load environment variables
-source "$ENV_FILE"
 
 # Record start time
 START_TIME=$(date +%s)
@@ -56,8 +69,10 @@ cp "$IMMICH_DIR/docker-compose.yml" "$BACKUP_DIR/docker-compose_backup.yml" && l
 
 # Backup library folder with rsync
 log "Starting library rsync backup..."
-if rsync -avh --delete --inplace /mnt/data/immich/library/ /mnt/data/immich/backup/library/; then
-    log "Library backup completed: /mnt/data/immich/backup/library/"
+LIBRARY_SOURCE="${UPLOAD_LOCATION%/}/"  # Remove trailing slash and add it back for rsync
+LIBRARY_BACKUP="${BACKUP_DIR}/library/"
+if rsync -avh --delete --inplace "$LIBRARY_SOURCE" "$LIBRARY_BACKUP"; then
+    log "Library backup completed: $LIBRARY_BACKUP"
 else
     log "ERROR: Library backup failed"
     exit 1

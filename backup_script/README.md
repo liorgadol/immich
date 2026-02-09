@@ -39,9 +39,9 @@ To schedule daily backups at 2 AM:
 crontab -e
 ```
 
-Add this line:
+Add this line (update the path to match your installation):
 ```
-0 2 * * * /home/gadol/projects/immich/backup_script/backup-immich.sh
+0 2 * * * /path/to/immich/backup_script/backup-immich.sh
 ```
 
 ## 📁 Backup Location
@@ -60,27 +60,31 @@ By default, all backups are stored in:
 
 ### Required Environment Variables
 
-The script loads these from your `.env` file:
+Add these to your `.env` file (they're likely already there from your Immich setup):
 
 ```bash
-DB_PASSWORD=<your-database-password>
+# Database configuration (required by Immich)
+DB_PASSWORD=your-secure-database-password
 DB_USERNAME=postgres
-DB_NAME=immich
-DB_CONTAINER=immich_postgres  # or your database container name
+DB_DATABASE_NAME=immich
+
+# Upload location (required by Immich)
+UPLOAD_LOCATION=/mnt/data/immich/library
+
+# Optional backup configuration (add these if you want to customize)
+BACKUP_DIR=/mnt/data/immich/backup    # Where backups are stored
+MAX_BACKUPS=4                          # Number of database backups to keep
+DB_CONTAINER=immich_postgres          # Database container name
 ```
 
-### Customizing Paths
+### Auto-Detection
 
-Edit the following variables at the top of `backup-immich.sh`:
+The script automatically detects:
+- **Script location**: Finds the Immich directory relative to the script
+- **`.env` file**: Loads from the Immich directory
+- **Default values**: Uses sensible defaults if optional variables aren't set
 
-```bash
-ENV_FILE="/home/gadol/projects/immich/.env"
-IMMICH_DIR="/home/gadol/projects/immich"
-BACKUP_DIR="/mnt/data/immich/backup"
-MAX_BACKUPS=4  # Number of database backups to keep
-```
-
-**Important**: Use absolute paths for cron compatibility.
+No hardcoded paths needed! The script adapts to your installation location.
 
 ## 📊 What Gets Backed Up
 
