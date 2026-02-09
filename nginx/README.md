@@ -13,9 +13,14 @@ Your Immich server is now protected behind an Nginx reverse proxy.
 - X-Content-Type-Options header (prevents MIME type sniffing)
 - X-XSS-Protection header
 - Referrer-Policy header
+- HSTS header (forces HTTPS, prevents SSL stripping)
+- SSL session caching and OCSP stapling (performance & security)
+- Rate limiting (10 req/s general, 5 req/s for auth endpoints)
+- Internal network bypass (192.168.0.0/16 skips general rate limits)
 - Large file upload support (10GB limit)
 - WebSocket support for Immich features
 - Proper timeout configurations
+- Disabled buffering for uploads and video streaming
 
 ## Accessing Your Server
 

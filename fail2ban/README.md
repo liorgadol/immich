@@ -12,11 +12,13 @@ Fail2ban monitors nginx logs and automatically bans IP addresses that show malic
    - Bans after 5 failed login attempts within 5 minutes
    - Ban duration: 1 hour
    - Watches: `/api/auth/` and `/api/oauth/` endpoints for 401/403 responses
+   - Ignores: Local IPs (127.0.0.1, ::1, 192.168.0.0/16)
 
 2. **nginx-immich-limit**: Monitors rate limit violations
    - Bans after 10 rate limit violations within 1 minute
    - Ban duration: 10 minutes
    - Watches: nginx error log for rate limit messages
+   - Ignores: Local IPs (127.0.0.1, ::1, 192.168.0.0/16)
 
 ## Commands
 
@@ -59,6 +61,7 @@ Edit `jail.d/immich.conf` to adjust:
 - `maxretry`: Number of failures before ban
 - `findtime`: Time window in seconds to count failures
 - `bantime`: How long to ban (in seconds)
+- `ignoreip`: IP addresses/subnets to never ban (currently: 127.0.0.1/8, ::1, 192.168.0.0/16)
 
 ## Troubleshooting
 
