@@ -54,10 +54,10 @@ if docker exec -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" \
     log "Backup completed: $BACKUP_FILE ($(du -h "$BACKUP_FILE" | cut -f1))"
     
     # Keep only the last 4 backups
-    log "Cleaning up old backups (keeping last $MAX_BACKUPS)..."
+    log "Cleaning up old DB backups (keeping last $MAX_BACKUPS)..."
     ls -t "$BACKUP_DIR"/immich_db_backup_*.sql.gz 2>/dev/null | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm -f
     REMAINING=$(ls -1 "$BACKUP_DIR"/immich_db_backup_*.sql.gz 2>/dev/null | wc -l)
-    log "Current backup count: $REMAINING"
+    log "Current DB backup count: $REMAINING"
 else
     log "ERROR: Backup failed"
     exit 1
