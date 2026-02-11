@@ -37,16 +37,20 @@ log() {
 START_TIME=$(date +%s)
 log "Starting backup..."
 
-# Trap to ensure Immich Container restarts even if script fails
-trap 'log "Restarting Immich Container..."; docker start immich_server' EXIT
 
-# Stop Immich Container for consistent backup
-log "Stopping Immich Container..."
-if docker stop immich_server; then
-    log "Immich Container stopped successfully"
-else
-    log "WARNING: Failed to stop Immich Container, continuing anyway"
-fi
+CONTAINERS_TO_MANAGE=(immich_server immich_machine_learning)
+# Trap to ensure both containers restart even if script fails
+trap 'log "Restarting Immich containers..."; for c in "${CONTAINERS_TO_MANAGE[@]}"; do docker start "$c"; done' EXIT
+
+# Stop containers for consistent backup
+for c in "${CONTAINERS_TO_MANAGE[@]}"; do
+    log "Stopping $c..."
+    if docker stop "$c"; then
+        log "$c stopped successfully"
+    else
+        log "WARNING: Failed to stop $c, continuing anyway"
+    fi
+done
 
 log "Starting database backup..."
 if docker exec -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" \
@@ -79,14 +83,17 @@ else
     exit 1
 fi
 
-# Restart Immich Container
-log "Starting Immich Container..."
-if docker start immich_server; then
-    log "Immich Container restarted successfully"
-else
-    log "ERROR: Failed to restart Immich Container!"
-    exit 1
-fi
+
+# Restart containers
+for c in "${CONTAINERS_TO_MANAGE[@]}"; do
+    log "Starting $c..."
+    if docker start "$c"; then
+        log "$c restarted successfully"
+    else
+        log "ERROR: Failed to restart $c!"
+        exit 1
+    fi
+done
 
 # Disable trap since we've manually restarted
 trap - EXIT
