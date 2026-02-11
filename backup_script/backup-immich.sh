@@ -38,12 +38,13 @@ START_TIME=$(date +%s)
 log "Starting backup..."
 
 
-CONTAINERS_TO_MANAGE=(immich_server immich_machine_learning)
-# Trap to ensure both containers restart even if script fails
-trap 'log "Restarting Immich containers..."; for c in "${CONTAINERS_TO_MANAGE[@]}"; do docker start "$c"; done' EXIT
+IMMICH_CONTAINERS=(immich_server immich_machine_learning)
+NGINX_CONTAINER=immich_nginx_proxy
+# Trap to ensure containers restart even if script fails
+trap 'log "Restarting Immich containers..."; for c in "${IMMICH_CONTAINERS[@]}"; do docker start "$c"; done; log "Restarting nginx-proxy..."; docker start "$NGINX_CONTAINER"' EXIT
 
 # Stop containers for consistent backup
-for c in "${CONTAINERS_TO_MANAGE[@]}"; do
+for c in "${IMMICH_CONTAINERS[@]}"; do
     log "Stopping $c..."
     if docker stop "$c"; then
         log "$c stopped successfully"
@@ -51,6 +52,13 @@ for c in "${CONTAINERS_TO_MANAGE[@]}"; do
         log "WARNING: Failed to stop $c, continuing anyway"
     fi
 done
+# Stop nginx-proxy last
+log "Stopping $NGINX_CONTAINER..."
+if docker stop "$NGINX_CONTAINER"; then
+    log "$NGINX_CONTAINER stopped successfully"
+else
+    log "WARNING: Failed to stop $NGINX_CONTAINER, continuing anyway"
+fi
 
 log "Starting database backup..."
 if docker exec -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" \
@@ -84,8 +92,9 @@ else
 fi
 
 
-# Restart containers
-for c in "${CONTAINERS_TO_MANAGE[@]}"; do
+
+# Restart Immich containers first
+for c in "${IMMICH_CONTAINERS[@]}"; do
     log "Starting $c..."
     if docker start "$c"; then
         log "$c restarted successfully"
@@ -94,6 +103,14 @@ for c in "${CONTAINERS_TO_MANAGE[@]}"; do
         exit 1
     fi
 done
+# Then restart nginx-proxy
+log "Starting $NGINX_CONTAINER..."
+if docker start "$NGINX_CONTAINER"; then
+    log "$NGINX_CONTAINER restarted successfully"
+else
+    log "ERROR: Failed to restart $NGINX_CONTAINER!"
+    exit 1
+fi
 
 # Disable trap since we've manually restarted
 trap - EXIT
