@@ -44,6 +44,7 @@ services:
       # Do not edit the next line. If you want to change the media storage location on your system, edit the value of UPLOAD_LOCATION in the .env file
       - ${UPLOAD_LOCATION}:/data
       - /etc/localtime:/etc/localtime:ro
+      - /mnt/photos:/external:ro
     env_file:
       - .env
     # Port removed - accessed through nginx-proxy only
