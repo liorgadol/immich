@@ -3,4 +3,6 @@ postgres/
 .DS_Store
 nginx/ssl/*
 !nginx/ssl/.gitkeep
+nginx/logs/*
+!nginx/logs/.gitkeep
 .env
