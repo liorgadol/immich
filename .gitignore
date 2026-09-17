@@ -7,3 +7,6 @@ nginx/logs/*
 !nginx/logs/.gitkeep
 .envfail2ban/db/*
 !fail2ban/db/.gitkeep
+.env
+.env.*
+fail2ban/db/
