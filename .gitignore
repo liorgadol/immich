@@ -5,4 +5,5 @@ nginx/ssl/*
 !nginx/ssl/.gitkeep
 nginx/logs/*
 !nginx/logs/.gitkeep
-.env
+.envfail2ban/db/*
+!fail2ban/db/.gitkeep
