@@ -9,11 +9,13 @@ services:
       - "kuma.immich-proxy.docker.name=Immich proxy"
       - "kuma.immich-proxy.docker.docker_container=immich_nginx_proxy"
       # The public URL, so DDNS, port forwarding, nginx, immich-server and the
-      # certificate are all covered. expiry_notification warns on Telegram
-      # before the certificate runs out.
+      # certificate are all covered. expiry_notification stays false: in
+      # Uptime Kuma 2.5.5 it throws "UNIQUE constraint failed: setting.key"
+      # on each beat and the monitor stops checking, stuck on Pending. Set
+      # explicitly so AutoKuma turns it off on the existing monitor too.
       - "kuma.immich-web.http.name=Immich web"
       - "kuma.immich-web.http.url=https://liorgadol.ddnsfree.com:2284/"
-      - "kuma.immich-web.http.expiry_notification=true"
+      - "kuma.immich-web.http.expiry_notification=false"
     ports:
       - '2284:443'
     volumes:
