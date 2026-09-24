@@ -75,6 +75,24 @@ UPLOAD_LOCATION=/mnt/data/immich/library
 BACKUP_DIR=/mnt/data/immich/backup    # Where backups are stored
 MAX_BACKUPS=4                          # Number of database backups to keep
 DB_CONTAINER=immich_postgres          # Database container name
+
+# Optional Telegram failure alerts (both required to enable)
+TELEGRAM_BOT_TOKEN=123456:ABC-your-bot-token
+TELEGRAM_CHAT_ID=123456789
+```
+
+### Telegram Failure Alerts
+
+If the backup fails, the script sends a message with the exit code and last log lines to your Telegram bot. Nothing is sent on success.
+
+1. Create a bot with [@BotFather](https://t.me/BotFather) and copy the token.
+2. Send any message to your bot, then get your chat ID from `https://api.telegram.org/bot<TOKEN>/getUpdates` (`message.chat.id`).
+3. Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` to `.env`.
+
+Test it:
+```bash
+source .env && curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+  --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" --data-urlencode "text=test"
 ```
 
 ### Auto-Detection

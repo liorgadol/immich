@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Fail a pipeline if any command in it fails (e.g. pg_dump | gzip)
+set -o pipefail
+
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 IMMICH_DIR="${IMMICH_DIR:-$(dirname "$SCRIPT_DIR")}"
@@ -33,6 +36,18 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
+# Send a Telegram message (no-op if TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set)
+send_telegram() {
+    if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+        return 0
+    fi
+    if ! curl -fsS -m 15 -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+        --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+        --data-urlencode "text=$1" > /dev/null; then
+        log "WARNING: Failed to send Telegram notification"
+    fi
+}
+
 # Record start time
 START_TIME=$(date +%s)
 log "Starting backup..."
@@ -40,8 +55,20 @@ log "Starting backup..."
 
 IMMICH_CONTAINERS=(immich_server immich_machine_learning)
 NGINX_CONTAINER=immich_nginx_proxy
-# Trap to ensure containers restart even if script fails
-trap 'log "Restarting Immich containers..."; for c in "${IMMICH_CONTAINERS[@]}"; do docker start "$c"; done; log "Restarting nginx-proxy..."; docker start "$NGINX_CONTAINER"' EXIT
+# Trap to ensure containers restart even if script fails, and notify on failure
+on_exit() {
+    local rc=$?
+    log "Restarting Immich containers..."
+    for c in "${IMMICH_CONTAINERS[@]}"; do docker start "$c"; done
+    log "Restarting nginx-proxy..."
+    docker start "$NGINX_CONTAINER"
+    if [ "$rc" -ne 0 ]; then
+        send_telegram "Immich backup FAILED on $(hostname) (exit code $rc)
+
+$(tail -n 15 "$LOG_FILE")"
+    fi
+}
+trap on_exit EXIT
 
 # Stop containers for consistent backup
 for c in "${IMMICH_CONTAINERS[@]}"; do
