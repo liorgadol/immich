@@ -22,13 +22,13 @@ cd backup_script
 ```
 
 The script will:
-1. **Stop the immich_server container** (for data consistency)
-2. Set up a safety trap to ensure server restart even if script fails
+1. **Stop `immich_server`, `immich_machine_learning`, then `immich_nginx_proxy`** (for data consistency)
+2. Set up a safety trap to ensure the containers restart even if the script fails
 3. Backup the PostgreSQL database (compressed)
 4. Clean up old database backups (keeps last 4)
 5. Backup configuration files (.env and docker-compose.yml)
 6. Sync the library folder with rsync
-7. **Restart the immich_server container**
+7. **Restart `immich_server` and `immich_machine_learning`, then `immich_nginx_proxy`**
 8. Log all operations with timestamps
 
 ### Automated Backups (Cron)
@@ -127,26 +127,30 @@ No hardcoded paths needed! The script adapts to your installation location.
 
 ## � Container Management & Safety
 
-### Immich Server Stop/Start Process
+### Container Stop/Start Process
 
-The script **stops the `immich_server` container** during backup to ensure data consistency:
+The script **stops three containers** during backup to ensure data consistency:
 
 ```bash
-# Stops before backup
+# Stops before backup (nginx last)
 docker stop immich_server
+docker stop immich_machine_learning
+docker stop immich_nginx_proxy
 
 # Performs all backup operations...
 
-# Restarts after backup
+# Restarts after backup (nginx last)
 docker start immich_server
+docker start immich_machine_learning
+docker start immich_nginx_proxy
 ```
 
 ### Safety Trap Mechanism
 
-The script includes a **safety trap** that guarantees the server restarts even if the backup fails:
+The script includes a **safety trap** (`on_exit`) that guarantees the three containers restart even if the backup fails, and sends a Telegram alert with the tail of the log when the script exits non-zero:
 
 ```bash
-trap 'docker start immich_server' EXIT
+trap on_exit EXIT
 ```
 
 This means:
@@ -157,12 +161,12 @@ This means:
 
 ### Why Stop the Server?
 
-Stopping `immich_server` (while keeping database running) ensures:
+Stopping the Immich containers (while keeping the database running) ensures:
 - **Data consistency**: No writes during database dump
 - **Clean snapshots**: Library files aren't being modified during rsync
 - **Reliable restores**: Backup represents a consistent point in time
 
-**Note**: Only `immich_server` is stopped. The database container continues running for the pg_dump operation.
+**Note**: `immich_postgres` keeps running for the pg_dump operation, and `immich_redis` and `immich_fail2ban` are not touched. Because nginx is stopped too, the public URL is unreachable for the whole backup.
 
 ## �🔄 Restore Process
 
@@ -235,13 +239,14 @@ cat /mnt/data/immich/backup/backup.log
 ## ⚠️ Important Notes
 
 ### Downtime
-The script **stops only the `immich_server` container** during backup (database, Redis, and ML containers keep running). This ensures data consistency while minimizing downtime:
+The script **stops `immich_server`, `immich_machine_learning` and `immich_nginx_proxy`** during backup. Immich is unreachable, locally and through the public URL, until they restart:
 
-- **Container stopped**: `immich_server` only
-- **Containers running**: `database` (for pg_dump), `redis`, `immich_machine_learning`
+- **Containers stopped**: `immich_server`, `immich_machine_learning`, `immich_nginx_proxy`
+- **Containers running**: `immich_postgres` (for pg_dump), `immich_redis`, `immich_fail2ban`
 - **Database backup**: 10-30 seconds (varies by size)
 - **Library rsync**: Varies by changes (initial backup takes longer)
-- **Total downtime**: Usually under 1 minute for incremental backups
+- **Total downtime**: The whole run, including the library rsync — the containers restart only after it finishes. Check the total time at the end of `backup.log`
+- **Uptime Kuma**: the backup is covered by a daily maintenance window on the Immich server, Immich machine learning, Immich proxy and Immich web monitors, so it does not alert. If the backup outgrows the window, widen it
 - **Safety**: Automatic restart even if backup fails (via trap mechanism)
 
 ### Storage Requirements
