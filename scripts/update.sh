@@ -3,9 +3,9 @@
 # Stop on first failed command
 set -e
 
-# Run from the directory where this script (and docker-compose.yml) lives
+# Run from the Immich directory (parent of scripts/, where docker-compose.yml lives)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+cd "$(dirname "$SCRIPT_DIR")"
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"

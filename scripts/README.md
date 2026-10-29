@@ -18,7 +18,7 @@ The `backup-immich.sh` script provides automated backups of your entire Immich i
 ### Manual Backup
 
 ```bash
-cd backup_script
+cd scripts
 ./backup-immich.sh
 ```
 
@@ -43,7 +43,7 @@ crontab -e
 
 Add this line (update the path to match your installation):
 ```
-0 2 * * * /path/to/immich/backup_script/backup-immich.sh
+0 2 * * * /path/to/immich/scripts/backup-immich.sh
 ```
 
 ## 📁 Backup Location
@@ -240,7 +240,7 @@ cat /mnt/data/immich/backup/backup.log
 
 ### Backup Summary
 
-Each run overwrites `backup_script/backup-summary.log` (git-ignored) with a short summary of the last backup. It is written from the exit trap, so a failed run still gets one, naming the step that failed:
+Each run overwrites `scripts/backup-summary.log` (git-ignored) with a short summary of the last backup. It is written from the exit trap, so a failed run still gets one, naming the step that failed:
 
 ```
 ==== Immich backup - 2026-10-29 02:00:03 (server) ====
@@ -321,7 +321,7 @@ gunzip -c /mnt/data/immich/backup/immich_db_backup_YYYYMMDD_HHMMSS.sql.gz | head
 
 Check permissions:
 ```bash
-chmod +x /home/gadol/projects/immich/backup_script/backup-immich.sh
+chmod +x /home/gadol/projects/immich/scripts/backup-immich.sh
 ```
 
 ### Database Backup Fails
@@ -343,7 +343,7 @@ df -h /mnt/data/immich/backup
 Reduce backup retention:
 ```bash
 # Edit MAX_BACKUPS in backup-immich.sh
-nano /home/gadol/projects/immich/backup_script/backup-immich.sh
+nano /home/gadol/projects/immich/scripts/backup-immich.sh
 ```
 
 ### Immich Server Won't Restart

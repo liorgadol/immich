@@ -9,4 +9,4 @@ fail2ban/db/*
 !fail2ban/db/.gitkeep
 .env
 .env.*
-backup_script/backup-summary.log
+scripts/backup-summary.log

@@ -67,7 +67,7 @@ Your server will then be accessible at: `https://your-server-ip:2284`
 2. **Set up a firewall** to allow only ports 2283/2284
 3. **Use strong passwords** in your Immich configuration
 4. **Consider using Cloudflare** or similar service for additional DDoS protection
-5. **Regular backups** - use the backup script in `backup_script/`
+5. **Regular backups** - use the backup script in `scripts/`
 6. **Keep images updated**: `docker compose pull && docker compose up -d`
 
 ## Troubleshooting

@@ -61,7 +61,7 @@ This is a Docker Compose setup for running Immich, providing:
 immich/
 ├── docker-compose.yml       # Docker services configuration
 ├── .env                     # Environment variables (private)
-├── backup_script/           # Backup and restore scripts
+├── scripts/                 # Backup and update scripts
 └── README.md               # This file
 
 /mnt/data/immich/
@@ -93,19 +93,18 @@ docker compose ps
 
 ### Update Immich
 ```bash
-docker compose pull
-docker compose down
-docker compose up -d
+./scripts/update.sh
 ```
+Pulls the latest images first (Immich stays up during the download), then runs `docker compose down` and `docker compose up -d`.
 
 ## 💾 Backup & Restore
 
-This installation includes comprehensive backup scripts in the `backup_script/` directory.
+This installation includes a backup script in the `scripts/` directory.
 
 ### Quick Backup
 
 ```bash
-cd backup_script
+cd scripts
 ./backup-immich.sh
 ```
 
@@ -126,7 +125,7 @@ cd backup_script
 
 ### Learn More
 
-See the [Backup README](backup_script/README.md) for full documentation on:
+See the [Backup README](scripts/README.md) for full documentation on:
 - Automated backups with cron
 - Restore procedures
 - Configuration options
