@@ -109,14 +109,15 @@ cd scripts
 ```
 
 **What happens during backup:**
-1. Stops `immich_server` container (other containers keep running)
-2. Backs up PostgreSQL database (compressed SQL dump)
-3. Backs up all media files (photos/videos) using rsync
-4. Backs up configuration files (.env and docker-compose.yml)
-5. Restarts `immich_server` container automatically
-6. Safety trap ensures server restart even if backup fails
+1. Stops `immich_server`, `immich_machine_learning`, then `immich_nginx_proxy` (`immich_postgres`, `immich_redis` and `immich_fail2ban` keep running)
+2. Backs up PostgreSQL database (compressed SQL dump) and checks it with `gzip -t`
+3. Backs up configuration files (.env and docker-compose.yml)
+4. Backs up all media files (photos/videos) using rsync
+5. Restarts the three containers, nginx last
+6. Writes a short summary of the run to `scripts/backup-summary.log`
+7. Safety trap restarts the containers and writes the summary even if the backup fails, and sends a Telegram alert on failure (if configured)
 
-**Downtime:** Usually under 1 minute (only `immich_server` is stopped)
+**Downtime:** The whole run, including the library rsync. Immich is unreachable locally and through the public URL until the containers restart. Check the total time in the summary or at the end of `backup.log`
 
 **What gets backed up:**
 - PostgreSQL database (last 4 backups kept, auto-rotated)
