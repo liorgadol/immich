@@ -10,6 +10,7 @@ The `backup-immich.sh` script provides automated backups of your entire Immich i
 - **Media Library**: Complete backup of all photos and videos using rsync
 - **Configuration Files**: `.env` and `docker-compose.yml` backups
 - **Detailed Logging**: All operations logged to `backup.log`
+- **Backup Summary**: Short result of the last run in `backup-summary.log`, next to the script
 - **Cron Compatible**: Absolute paths for scheduled backups
 
 ## 🚀 Quick Start
@@ -24,12 +25,13 @@ cd backup_script
 The script will:
 1. **Stop `immich_server`, `immich_machine_learning`, then `immich_nginx_proxy`** (for data consistency)
 2. Set up a safety trap to ensure the containers restart even if the script fails
-3. Backup the PostgreSQL database (compressed)
+3. Backup the PostgreSQL database (compressed) and check it with `gzip -t`
 4. Clean up old database backups (keeps last 4)
 5. Backup configuration files (.env and docker-compose.yml)
 6. Sync the library folder with rsync
 7. **Restart `immich_server` and `immich_machine_learning`, then `immich_nginx_proxy`**
 8. Log all operations with timestamps
+9. Write `backup-summary.log` next to the script (on success and on failure)
 
 ### Automated Backups (Cron)
 
@@ -235,6 +237,27 @@ View the last backup log:
 ```bash
 cat /mnt/data/immich/backup/backup.log
 ```
+
+### Backup Summary
+
+Each run overwrites `backup_script/backup-summary.log` (git-ignored) with a short summary of the last backup. It is written from the exit trap, so a failed run still gets one, naming the step that failed:
+
+```
+==== Immich backup - 2026-10-29 02:00:03 (server) ====
+Status:      SUCCESS
+Duration:    12m 41s
+Database:    immich_db_backup_20261029_020003.sql.gz  (342M)  integrity: OK
+DB backups kept:
+             immich_db_backup_20261029_020003.sql.gz  342M
+             immich_db_backup_20261028_020002.sql.gz  341M
+Config:      .env OK, docker-compose.yml OK
+Library:     files sent 52 (1.80G), deleted 3, total 48,211 / 612.00G
+Disk:        1.2T free (61% used)
+Containers:  immich_server OK, immich_machine_learning OK, immich_nginx_proxy OK
+Full log:    /mnt/data/immich/backup/backup.log
+```
+
+The library numbers come from `rsync --stats`. The disk line adds a warning when the backup volume is 90% full or more.
 
 ## ⚠️ Important Notes
 
